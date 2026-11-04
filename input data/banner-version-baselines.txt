@@ -1,0 +1,116 @@
+# Format: hint|technologyName|minPatchedVersion
+# If detected version is less than minPatchedVersion, InfraChecker marks it as vulnerable.
+
+# Web Servers
+apache|apache|2.4.65
+httpd|apache|2.4.65
+apache http server|apache|2.4.65
+nginx|nginx|1.28.0
+openresty|openresty|1.27.1.2
+caddy|caddy|2.10.2
+lighttpd|lighttpd|1.4.79
+iis|microsoft-iis|10.0.0
+microsoft-iis|microsoft-iis|10.0.0
+
+# Reverse Proxies / Load Balancers
+haproxy|haproxy|3.2.4
+traefik|traefik|3.5.0
+envoy|envoy|1.35.0
+
+# SSL/TLS
+openssl|openssl|3.5.1
+libressl|libressl|4.1.0
+boringssl|boringssl|latest
+
+# PHP
+php|php|8.4.10
+php-fpm|php|8.4.10
+
+# Java Application Servers
+tomcat|tomcat|11.0.10
+apache tomcat|tomcat|11.0.10
+jetty|jetty|12.1.2
+glassfish|glassfish|7.0.24
+payara|payara|6.2025.6
+wildfly|wildfly|38.0.1
+jboss|jboss-eap|8.1.0
+weblogic|oracle-weblogic|14.1.2
+websphere|ibm-websphere|9.0.5.26
+
+# Java Frameworks
+spring|spring-framework|6.2.8
+spring boot|spring-boot|3.5.4
+springboot|spring-boot|3.5.4
+struts|apache-struts|7.0.0
+
+# Microsoft
+asp.net|asp.net|4.8.1
+aspnet|asp.net|4.8.1
+asp.net core|asp.net-core|9.0.8
+dotnet|.net|9.0.8
+.net|.net|9.0.8
+
+# Node.js
+node.js|node.js|24.5.0
+node|node.js|24.5.0
+express|express|5.1.0
+koa|koa|3.0.1
+nestjs|nestjs|11.1.6
+fastify|fastify|5.5.0
+
+# Python
+python|python|3.13.6
+django|django|5.2.4
+flask|flask|3.1.1
+fastapi|fastapi|0.116.1
+gunicorn|gunicorn|23.0.0
+uvicorn|uvicorn|0.35.0
+
+# Ruby
+ruby|ruby|3.4.5
+rails|ruby-on-rails|8.0.2
+
+# Go
+golang|go|1.24.5
+go|go|1.24.5
+
+# Databases
+mysql|mysql|9.3.0
+mariadb|mariadb|11.8.2
+postgresql|postgresql|17.5
+postgres|postgresql|17.5
+mongodb|mongodb|8.0.12
+redis|redis|8.0.3
+elasticsearch|elasticsearch|9.0.3
+cassandra|apache-cassandra|5.0.4
+
+# Containers
+docker|docker|28.3.2
+containerd|containerd|2.1.3
+kubernetes|kubernetes|1.33.2
+
+# Message Brokers
+rabbitmq|rabbitmq|4.1.2
+kafka|apache-kafka|4.0.0
+activemq|apache-activemq|6.1.7
+
+# Web Frameworks
+laravel|laravel|12.20.0
+symfony|symfony|7.3.1
+codeigniter|codeigniter|4.6.3
+
+# CMS
+wordpress|wordpress|6.8.2
+drupal|drupal|11.2.1
+joomla|joomla|5.3.2
+
+# Search / Analytics
+solr|apache-solr|9.8.1
+kibana|kibana|9.0.3
+
+# Identity
+keycloak|keycloak|26.3.2
+
+# CI/CD
+jenkins|jenkins|2.516.2
+gitlab|gitlab|18.1.2

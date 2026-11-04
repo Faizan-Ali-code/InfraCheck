@@ -1,0 +1,14 @@
+# Python environment and caches (run.bat rebuilds .venv)
+.venv/
+__pycache__/
+*.py[cod]
+
+# Run output
+results/
+logs/
+cache/
+*.sqlite
+
+# Your own reference data (IP / CSP ownership per team)
+input data/IP-Ownership.xls
+input data/CSP-Ownership.xls

@@ -1,0 +1,21 @@
+# InfraChecker version check
+#
+# version_url: where the version file (JSON) is published. Either
+#   - a GitHub page URL:  https://github.com/<owner>/<repo>/blob/<branch>/<path>.json
+#     (read through the GitHub contents API), or
+#   - any URL that returns the JSON directly (GitHub API, raw file, internal web server).
+# Leave it empty to disable the check.
+#
+# Private repositories need a token. Set it in the environment variable INFRACHECKER_UPDATE_TOKEN;
+# never put a token in this file.
+#
+# Expected JSON:
+# {
+#   "application": "InfraChecker",
+#   "latestVersion": "4.3.8",
+#   "releaseDate": "08-10-2026",
+#   "downloadUrl": "https://...",
+#   "mandatoryUpdate": false,
+#   "releaseNotes": ["...", "..."]
+# }
+version_url=

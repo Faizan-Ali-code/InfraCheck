@@ -1,0 +1,5 @@
+# OpenAI settings for InfraChecker banner version assessment
+# Keep one key-value pair per line.
+api_key=
+model=gpt-4o-mini
+cache_ttl_days=3
