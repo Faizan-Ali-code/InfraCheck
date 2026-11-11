@@ -1,0 +1,24 @@
+# Organization-specific settings (all optional). One key=value per line; lines starting with # are comments.
+# Leave a value empty to switch that feature off.
+#
+# default_owner
+#   Ownership written on the "HTTP to HTTPS Redirection" and "302 Redirect Body" rows and on a missing CSP on an
+#   HTML redirect page (the web team's job, whatever the IP). Empty: these rows get their ownership from
+#   IP-Ownership.xls / CSP-Ownership.xls like every other row.
+default_owner=
+#
+# acs_domain_markers
+#   Comma-separated parts of host names of ACS / VBV / virtual card pages (3-D Secure), for example: -acs,-vbv
+#   These pages must be framed and called by other sites, so X-Frame-Options and Access-Control-Allow-Origin are
+#   not reported on them.
+acs_domain_markers=
+#
+# summary_domain, summary_ip_prefix, summary_teams
+#   SQL summary queries written to the log after a Header Analysis (to run on the results .sqlite file).
+#   summary_domain:    your own domain, for example example.com. Set: one query for its subdomains and one for
+#                      all other domains. Empty: one query over all domains.
+#   summary_ip_prefix: limits the own-domain query to IPs starting with this text, for example 203.0.113.
+#   summary_teams:     comma-separated ownership names to count separately (as written in IP-Ownership.xls).
+summary_domain=
+summary_ip_prefix=
+summary_teams=

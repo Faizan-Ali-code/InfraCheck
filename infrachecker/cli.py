@@ -29,7 +29,7 @@ HELP_TEXT = [
     "SSL Lab Analysis (Latest Results): To perform SSL Labs method analysis, 'urls.txt' input is mandatory. "
     "Latest results will give current status.",
     "Exposure Check: To perform Exposure analysis, 'ips list-spoofing-errorpage-exposure.txt' and 'urls.txt' "
-    "inputs are mandatory. This must be performed outside of your organisation's network.",
+    "inputs are mandatory. This must be performed outside of the internal network.",
 ]
 
 

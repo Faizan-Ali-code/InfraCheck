@@ -1,0 +1,2 @@
+#Following domains will be ignored while header analysis.
+#One host name per line, for example: www.example.com

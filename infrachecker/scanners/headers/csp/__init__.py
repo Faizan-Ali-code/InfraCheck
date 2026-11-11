@@ -1,4 +1,4 @@
-"""Content-Security-Policy evaluation (Java ``w`` wrapper around ``a``, a port of google/csp-evaluator).
+"""Content-Security-Policy evaluation (Java ``w`` wrapper around package ``a``, a port of google/csp-evaluator).
 """
 from __future__ import annotations
 

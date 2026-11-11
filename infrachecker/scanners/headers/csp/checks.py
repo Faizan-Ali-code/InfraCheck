@@ -1,5 +1,5 @@
 """CSP checks (Java ``a.b.*``): upstream security and parser checks, the strict-dynamic check and the
-custom frame-ancestors / reporting checks.
+InfraChecker internal frame-ancestors / reporting checks.
 """
 from __future__ import annotations
 
@@ -251,7 +251,7 @@ def strict_dynamic(csp: Csp) -> list[Finding]:
     return []
 
 
-# ---------------------------------------------------------------------------------------- custom checks
+# --------------------------------------------------------------------------------- InfraChecker internal checks
 
 def frame_ancestors(csp: Csp) -> list[Finding]:
     values = csp.get("frame-ancestors")

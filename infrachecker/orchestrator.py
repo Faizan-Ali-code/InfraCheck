@@ -9,7 +9,7 @@ import threading
 import time
 from concurrent.futures import ThreadPoolExecutor
 
-from . import config
+from . import config, organization
 from .config import Analysis, OutputPaths
 from .javacompat.strings import has_http_scheme, java_exception_text, java_trim, strip_control_chars
 from .log import log, ts
@@ -27,13 +27,28 @@ _current_pool: ThreadPoolExecutor | None = None
 _stop_requested = threading.Event()
 current_paths: OutputPaths = config.new_output_paths()
 
-_HEADER_SUMMARY_QUERIES = [
-    ("Please find below the summary of Header Analysis (per ownership):\n\n",
-     "SELECT\r\n    ownership,\r\n    COUNT(DISTINCT host) AS unique_hosts_count,\r\n"
-     "    COUNT(*) AS total_vulnerabilities\r\n"
-     "FROM header_results\r\nWHERE vulnerabilityStatus IN ('Vulnerable', 'Deprecated')\r\n"
-     "GROUP BY ownership;"),
-]
+def header_summary_queries(org: organization.Organization) -> list[tuple[str, str]]:
+    """(title, SQL) pairs logged after a Header Analysis; the Java tool had one company's values built in.
+
+    With ``summary_domain`` set: one query for that domain's hosts (optionally only IPs starting with
+    ``summary_ip_prefix``) and one for all other hosts, as in the Java tool. Without it: one query over all hosts.
+    ``summary_teams`` adds a per-ownership count column for each listed team.
+    """
+    columns = ["COUNT(DISTINCT host) AS unique_hosts_count", "COUNT(*) AS total_vulnerabilities"]
+    for team in org.summary_teams:
+        quoted, alias = team.replace("'", "''"), re.sub(r"\W", "_", team)
+        columns.append(f"SUM(CASE WHEN ownership = '{quoted}' THEN 1 ELSE 0 END) AS total_vulnerabilities_{alias}")
+    select = ("SELECT\r\n    " + ",\r\n    ".join(columns) + "\r\nFROM header_results\r\n"
+              "WHERE vulnerabilityStatus IN ('Vulnerable', 'Deprecated')")
+    domain, prefix = org.summary_domain.replace("'", "''"), org.summary_ip_prefix.replace("'", "''")
+    if not domain:
+        return [("Please find below the summary of Header Analysis:\n\n", select + ";")]
+    ip_filter = f" AND ip LIKE '{prefix}%'" if prefix else ""
+    label = org.summary_domain.split(".")[0]
+    return [(f"Please find below the summary of Header Analysis(for {label} subdomains):\n\n",
+             f"{select}{ip_filter} AND host LIKE '%{domain}' ;"),
+            ("Please find below the summary of Header Analysis(for other domains):\n\n",
+             f"{select} AND host not LIKE '%{domain}';")]
 
 
 # --------------------------------------------------------------------------------------------- inputs
@@ -89,6 +104,7 @@ def _announce_and_init_output(analysis: Analysis, paths: OutputPaths) -> None:
         log.info("\n")
         log.info(f"{ts()} Going to perform Header Analysis")
         reference_data.reload()
+        organization.reload()
         return
     if analysis is Analysis.SSL_LABS:
         writer.init_output(out, config.columns_for(analysis))
@@ -214,10 +230,11 @@ def _post_process(analysis: Analysis, paths: OutputPaths) -> None:
     except OSError as exc:
         log.warning(f"{ts()} Failed to export header results to Excel: {exc}. "
                     f"Results remain available in SQLite DB -> {sqlite_path}")
-    for title, query in _HEADER_SUMMARY_QUERIES:
+    for index, (title, query) in enumerate(header_summary_queries(organization.get())):
+        if index:
+            print("\n")
         log.info(title)
         log.info("Query -> " + re.sub(r"\s+", " ", query))
-        print("\n")
     header_store.write_stats(paths.headers)
     print("\n")
 

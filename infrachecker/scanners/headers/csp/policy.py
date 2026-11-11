@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 from ....javacompat.strings import java_trim
 
-# Finding severities (lower is worse). LOW (35) is a custom addition.
+# Finding severities (lower is worse). LOW (35) is an InfraChecker addition.
 SEVERITY = {"HIGH": 10, "SYNTAX": 20, "MEDIUM": 30, "LOW": 35, "HIGH_MAYBE": 40, "STRICT_CSP": 45,
             "MEDIUM_MAYBE": 50, "INFO": 60, "NONE": 100}
 CSP2, CSP3 = 2, 3

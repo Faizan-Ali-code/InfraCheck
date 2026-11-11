@@ -32,13 +32,17 @@ CSP_OWNERSHIP_FILE = "./input data/CSP-Ownership.xls"
 IGNORED_DOMAINS_FILE = "./input data/ignored-domains.txt"
 IGNORED_BANNER_FILE = "./input data/ignored-banner-grabbing.txt"
 UPDATE_CONFIG_FILE = "./input data/update-config.txt"
+ORGANIZATION_CONFIG_FILE = "./input data/organization-config.txt"
 
 RESULT_SHEET = f"Result ver {VERSION}"
 USER_AGENT = "Mozilla/5.0"
 
-# Default block page of an F5 BIG-IP ASM web application firewall (used by HTTP-method analysis).
-WAF_BLOCK_PAGE = ("Request Rejected</title></head><body>The requested URL was rejected. "
-                  "Please consult with your administrator.<br><br>Your support ID is:")
+# WAF block pages recognised in responses (used by WAF and HTTP-method analysis).
+WAF_BLOCK_PAGE_1 = ("Request Rejected</title></head><body>Your request can not be completed at this moment. "
+                    "<br>Please consult with support team and provide support ID given below.<br> Thanks.<br><br>"
+                    "Your support ID is:")
+WAF_BLOCK_PAGE_2 = ("Request Rejected</title></head><body>The requested URL was rejected. "
+                    "Please consult with your administrator.<br><br>Your support ID is:")
 
 # Output column sets (Java class `aq`).
 HEADER_COLUMNS = ["URL", "Host", "IP", "IP Type", "Ownership", "Header", "Value", "Status Code",

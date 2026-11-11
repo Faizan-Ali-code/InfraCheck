@@ -7,6 +7,7 @@ from __future__ import annotations
 
 from typing import Callable
 
+from ... import organization
 from ...javacompat.java_url import MalformedURLError, parse_url, url_host_or_raw
 from ...javacompat.strings import is_blank, java_trim
 from ...javacompat.utf16 import java_length
@@ -38,7 +39,13 @@ BANNER_IDENTIFIED = "Banner Grabbing Identified."
 REDIRECT_BODY_HEADER = "302 Redirect Body"
 HTTPS_REDIRECT_HEADER = "HTTP to HTTPS Redirection"
 HTTP2_HEADER = "HTTP2 Protocol"
-APP_TEAM = "Application Team"  # default ownership of app-level findings
+
+
+def web_owner() -> str | None:
+    """Ownership forced on redirect / 302-body rows: ``default_owner`` in organization-config.txt (built into the
+    Java tool); None = take it from the ownership files like any other row."""
+    return organization.get().default_owner or None
+
 
 _REDIRECT_SKIP = "3xx redirection found, skipping analysis for this header"
 _REDIRECT_NOT_REQUIRED = "3xx redirection found, This header is not required to be present."
@@ -249,25 +256,26 @@ class HeaderScanner:
         elif _non_html(content_type):
             row(NOT_VULNERABLE, "", _CSP_MISSING_NON_HTML)
         elif is_html_redirect(page.body):
-            row(VULNERABLE, f"[CRITICAL] {HEADER_MISSING} No policy is enforced. \n", _CSP_MISSING_REDIRECT, APP_TEAM)
+            row(VULNERABLE, f"[CRITICAL] {HEADER_MISSING} No policy is enforced. \n", _CSP_MISSING_REDIRECT,
+                web_owner())
         else:
             row(VULNERABLE, f"[CRITICAL] {HEADER_MISSING} No policy is enforced. \n", _CSP_MISSING_HTML)
 
     def _redirect_body(self, page: Page) -> None:
         if not is_blank(page.body):
             self._row(page.ip, page.url, REDIRECT_BODY_HEADER, f"{java_length(page.body)} bytes", page.code,
-                      VULNERABLE, "302 Redirect Response Contains Body.", _REDIRECT_BODY, APP_TEAM, page.body)
+                      VULNERABLE, "302 Redirect Response Contains Body.", _REDIRECT_BODY, web_owner(), page.body)
         else:
             self._row(page.ip, page.url, REDIRECT_BODY_HEADER, "Empty", page.code, NOT_VULNERABLE, "",
-                      "302 redirect response does not contain a response body.", APP_TEAM, None)
+                      "302 redirect response does not contain a response body.", web_owner(), None)
 
     def _https_redirection(self, page: Page, protocol: str) -> None:
         chain = discovery.follow_redirects(self._fetcher, page.url, protocol)
         described, last, outcome = chain.describe(), chain.last, chain.outcome
 
         def row(value: str, status: str, details: str, justification: str) -> None:
-            self._row(page.ip, page.url, HTTPS_REDIRECT_HEADER, value, page.code, status, details, justification, APP_TEAM,
-                      page.body)
+            self._row(page.ip, page.url, HTTPS_REDIRECT_HEADER, value, page.code, status, details, justification,
+                      web_owner(), page.body)
 
         if outcome is RedirectOutcome.HTTPS:
             source_host, target_host = url_host_or_raw(page.url).lower(), url_host_or_raw(last).lower()

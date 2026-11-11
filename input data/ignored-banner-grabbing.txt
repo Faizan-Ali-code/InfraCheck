@@ -1,3 +1,2 @@
 #The following banner-grabbing values will be ignored if they are contained within the actual value.
-#One value per line, e.g. a CDN node name that appears in a Server header:
-#cdn-node-
+#One value per line, for example: cdn-node-

@@ -1,0 +1,100 @@
+InfraChecker - how to run it, step by step
+===========================================
+
+InfraChecker checks web sites and servers for common security weaknesses and saves the findings
+in Excel files.
+
+
+ONE-TIME SETUP
+--------------
+1. Install Python 3.12 from https://www.python.org/downloads/
+   On the first installer screen tick "Add python.exe to PATH", then click "Install Now".
+
+2. Copy the InfraChecker folder to a SHORT path, for example:   C:\InfraChecker
+   (If the path is longer than about 80 characters, the first start fails while installing.)
+
+3. Make sure the PC has internet access for the first start (about 100 MB is downloaded once).
+
+
+RUN A SCAN
+----------
+Step 1 - Say what to scan
+   Open  input data\urls.txt  in Notepad.
+   Write one web address or host name per line, for example:
+       https://www.example.com
+       shop.example.com
+   ("https://" is added when it is missing.)  Save and close the file.
+
+Step 2 - Add IP addresses (only for IP Spoofing, Error Page and Exposure analyses)
+   Open  input data\ips list-spoofing-errorpage-exposure.txt  and write one IP address per line.
+   IP Spoofing Analysis and Exposure Check need it; Error Page Analysis uses it when it is filled.
+   For the other analyses you can leave it empty.
+
+Step 3 - Start InfraChecker
+   Double-click  run.bat
+   - First start only: a black window shows "creating virtual environment" and "Installing
+     required packages". This takes a few minutes. Do not close it.
+   - Then the InfraChecker window opens. Later starts take only a few seconds.
+
+Step 4 - Choose the analysis and start it
+   a. Analysis: pick one from the list
+        Header Analysis        security headers, CSP, cookies, server banners, HTTP to HTTPS, HTTP/2
+        HTTP Method Analysis   HTTP methods the server allows (PUT, DELETE, TRACE, ...)
+        IP Spoofing Analysis   access through spoofed client-IP headers
+        Error Page Analysis    standard error page in place, or server/technology details shown
+        SSL Labs Analysis      TLS grade from Qualys SSL Labs (slow: several minutes per host)
+        Exposure Check         hosts and IPs reachable from the internet
+                               (run it from OUTSIDE your internal network)
+   b. Proxy Host / Proxy Port: leave empty unless your network needs a proxy.
+   c. Click "Start Analysis". The progress bar and the log show the progress.
+      "Stop" cancels the scan (hosts already being checked finish first).
+
+Step 5 - Open the results
+   Click "Open Results Folder" (it is the  results  folder next to run.bat).
+   Every run writes a new Excel file:  <Analysis>-Status-<date-time>.xlsx
+   Header Analysis also adds the sheets "Header Stats" and "Teamwise Stats".
+   Saved page copies (evidence) are in  results\html,  SSL Labs reports in  results\SSL-Lab-Reports.
+   Do not keep the Excel file open while the scan is still running.
+   The results describe your systems: keep the  results  and  logs  folders private.
+
+
+OPTIONAL SETTINGS (input data folder - the tool works without them)
+-----------------
+IP-Ownership.xls, CSP-Ownership.xls
+    Column A = IP address, column B = team that owns it (row 1 is the header).
+    Fills the "Ownership" column and the "Teamwise Stats" sheet.
+ignored-domains.txt            Hosts that Header Analysis always marks Not Vulnerable.
+ignored-banner-grabbing.txt    Server banner values to ignore.
+banner-version-baselines.txt   Lowest safe version of each technology (for banner checks).
+organization-config.txt        Default owner, ACS / 3-D Secure host markers, log summary.
+                               Each setting is explained inside the file.
+
+OpenAI key (better banner version checks, optional):
+    Open Command Prompt and run:    setx OPENAI_API_KEY "your-key"
+    Close it and start run.bat again. Never write the key into a file.
+
+
+TERMINAL MODE (without the window)
+----------------------------------
+Open Command Prompt in the InfraChecker folder and run, for example:
+    run.bat --cli                  menu to choose the analysis
+    run.bat --cli 0                help
+    run.bat --cli 1 --no-proxy     Header Analysis without a proxy
+    run.bat --cli 3                HTTP Method Analysis
+Numbers: 1 Header, 3 HTTP Methods, 4 IP Spoofing, 5 Error Pages, 6 SSL Labs, 7 Exposure Check.
+(2, WAF Analysis, is not available in this version.)
+
+
+IF SOMETHING GOES WRONG
+-----------------------
+"Setup failed" on the first start
+    Check that Python 3.12 is installed with "Add python.exe to PATH", that the PC is online and
+    that the folder path is short (C:\InfraChecker). Run run.bat again; setup continues.
+The scan ends at once with "No URLs found" or 0/0
+    input data\urls.txt is empty or was not saved.
+A result file cannot be written
+    Close it in Excel.
+Start completely fresh
+    Delete the  .venv  folder and run run.bat again.
+More details
+    Every start writes a log file to the  logs  folder.

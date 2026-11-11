@@ -3,12 +3,8 @@
 __pycache__/
 *.py[cod]
 
-# Run output
+# Run output - describes the scanned systems, keep it private
 results/
 logs/
 cache/
 *.sqlite
-
-# Your own reference data (IP / CSP ownership per team)
-input data/IP-Ownership.xls
-input data/CSP-Ownership.xls

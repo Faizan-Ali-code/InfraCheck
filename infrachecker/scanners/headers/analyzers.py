@@ -7,13 +7,13 @@ import re
 from dataclasses import dataclass
 from datetime import date
 
+from ... import organization
 from ...javacompat.java_date import day_number, parse_dd_mm_yyyy
 from ...javacompat.java_uri import JavaURI
 from ...javacompat.strings import is_blank, java_trim
 from .verdict import NOT_VULNERABLE, PASS, Verdict, vulnerable
 
 ACS_PREFIX = "The domain is related to ACS/VBV/Virtual Card; "
-_ACS_MARKERS = ("-acs", "-midc", "-vbv", "-msc", "paxum-upi", "-virtual")
 _HTTP_ONLY_HSTS = "The URL uses HTTP, not HTTPS; Strict-Transport-Security is not applicable to plain HTTP responses."
 _HTTP_ONLY_CACHE = "The URL uses HTTP, not HTTPS; Cache-Control is not applicable to plain HTTP responses."
 _STRONG_REFERRER = frozenset({"no-referrer", "same-origin", "strict-origin", "strict-origin-when-cross-origin"})
@@ -42,8 +42,12 @@ def is_http(url: str | None) -> bool:
 
 
 def is_acs_domain(url: str | None) -> bool:
-    """Host contains an ACS/VBV/Virtual-Card marker (Java ``a.a``); registry-based hosts never match."""
-    if is_blank(url):
+    """Host contains an ACS/VBV/Virtual-Card marker (Java ``a.a``); registry-based hosts never match.
+
+    The markers are ``acs_domain_markers`` in organization-config.txt (built into the Java tool); none = no match.
+    """
+    markers = organization.get().acs_domain_markers
+    if not markers or is_blank(url):
         return False
     try:
         host = JavaURI.create(java_trim(url)).host
@@ -52,7 +56,7 @@ def is_acs_domain(url: str | None) -> bool:
     if host is None or not host.strip():
         return False
     host = host.lower()
-    return any(marker in host for marker in _ACS_MARKERS)
+    return any(marker in host for marker in markers)
 
 
 def strict_transport_security(value: str, url: str) -> Verdict:

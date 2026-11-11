@@ -81,7 +81,7 @@ def _probe(url: str, method: str, marker: str | None, proxy: tuple[str, int] | N
         response = _send(target, method, proxy)
         probe.status = response.status
         probe.body = response.any_text()
-        probe.waf = config.WAF_BLOCK_PAGE in probe.body
+        probe.waf = config.WAF_BLOCK_PAGE_1 in probe.body
         echoed = 200 <= probe.status < 500 and marker is not None and marker.lower() in probe.body.lower()
         probe.exposed = echoed or 200 <= probe.status < 300
     except (JavaIOError, JavaClassCastError) as exc:
