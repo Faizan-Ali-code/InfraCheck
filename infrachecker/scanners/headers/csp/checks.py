@@ -1,5 +1,11 @@
-"""CSP checks (Java ``a.b.*``): upstream security and parser checks, the strict-dynamic check and the
-InfraChecker internal frame-ancestors / reporting checks.
+"""CSP checks: the csp-evaluator security, parser and strict-dynamic checks, plus InfraChecker's own
+frame-ancestors / reporting checks.
+
+The functions under "upstream DEFAULT_CHECKS" and ``strict_dynamic`` are derived from google/csp-evaluator 1.1.8,
+checks/{security_checks,parser_checks,strictcsp_checks}.ts (https://github.com/google/csp-evaluator),
+Copyright 2016 Google Inc., licensed under the Apache License 2.0 (see licenses/csp-evaluator-LICENSE.txt and
+THIRD_PARTY_NOTICES.md). Changes: translated from TypeScript to Python. ``frame_ancestors``, ``report_to`` and
+``reporting_endpoints`` are InfraChecker additions and not derived from csp-evaluator.
 """
 from __future__ import annotations
 

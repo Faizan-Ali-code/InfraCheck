@@ -21,8 +21,10 @@ HELP_TEXT = [
     "Expires, Referrer-Policy, X-Content-Type-Options",
     "WAF Analysis: Not available in this build of InfraChecker.",
     "HTTP Method Analysis: To perform HTTP method analysis, 'urls.txt' input is mandatory.",
-    "IP Spoofing with headers: To perform IP Spoofing with headers analysis, "
-    "'ips list-spoofing-errorpage-exposure.txt' and 'urls.txt' input are mandatory.",
+    "IP Spoofing with headers: 'urls.txt' input is mandatory. Each URL is requested once without client-IP headers "
+    "(baseline) and then with each header claiming the addresses in 'spoof-ips.txt' (optional; loopback and private "
+    "addresses by default). A URL is reported vulnerable only when the header turns a refused request into a served "
+    "page.",
     "Error Pages Analysis: To perform Error Pages Analysis, 'ips list-spoofing-errorpage-exposure.txt' is OPTIONAL "
     "and 'urls.txt' input is mandatory. If you give 'ips list-spoofing-errorpage-exposure.txt' input then it will "
     "make sure completeness.",

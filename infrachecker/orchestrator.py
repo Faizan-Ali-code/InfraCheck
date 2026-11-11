@@ -15,7 +15,7 @@ from .javacompat.strings import has_http_scheme, java_exception_text, java_trim,
 from .log import log, ts
 from .persistence import header_store, reference_data, writer
 from .progress import ProgressListener
-from .scanners import headers, ssllabs
+from .scanners import headers, ip_spoofing, ssllabs
 from .scanners.headers import finalize
 from .worker import run_url
 
@@ -161,7 +161,11 @@ def _execute(analysis: Analysis, paths: OutputPaths, proxy_host: str | None, pro
         return
 
     ip_list = None
-    if analysis.uses_ip_list:
+    if analysis is Analysis.IP_SPOOFING:
+        ip_list = ip_spoofing.load_spoof_values()
+        log.info(f"{ts()} Client IPs to impersonate (from {config.SPOOF_IPS_FILE}, or the defaults) ->"
+                 f"{', '.join(ip_list)}")
+    elif analysis.uses_ip_list:
         log.info(f"{ts()} Going to get IPs list from following path ->{config.IPS_FILE}")
         ip_list = load_ip_list()
         log.info(f"{ts()} Got IPs count ->{len(ip_list)}")

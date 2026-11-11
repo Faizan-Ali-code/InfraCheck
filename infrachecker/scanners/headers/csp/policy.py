@@ -1,4 +1,9 @@
-"""CSP model, parser and effective policy (Java ``a.b`` / ``a.d``; google/csp-evaluator 1.1.8)."""
+"""CSP model, parser and effective policy.
+
+Derived from google/csp-evaluator 1.1.8, csp.ts, parser.ts and finding.ts (https://github.com/google/csp-evaluator),
+Copyright 2016 Google Inc., licensed under the Apache License 2.0 (see licenses/csp-evaluator-LICENSE.txt and
+THIRD_PARTY_NOTICES.md). Changes: translated from TypeScript to Python.
+"""
 from __future__ import annotations
 
 import re

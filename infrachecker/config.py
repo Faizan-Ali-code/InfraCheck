@@ -24,6 +24,10 @@ LOGS_DIR = "logs"
 INPUT_DIR = "./input data/"
 URLS_FILE = "./input data/urls.txt"
 IPS_FILE = "./input data/ips list-spoofing-errorpage-exposure.txt"
+SPOOF_IPS_FILE = "./input data/spoof-ips.txt"
+# Client addresses impersonated by IP Spoofing Analysis when spoof-ips.txt is missing or empty: loopback and one
+# address from each private range, the values an IP allowlist most often trusts.
+DEFAULT_SPOOF_IPS = ("127.0.0.1", "10.0.0.1", "172.16.0.1", "192.168.1.1")
 BANNER_BASELINES_FILE = "./input data/banner-version-baselines.txt"
 OPENAI_CONFIG_FILE = "./input data/openai-config.txt"
 OPENAI_CACHE_FILE = "./cache/openai-version-cache.txt"
@@ -51,7 +55,8 @@ HTTP_METHOD_COLUMNS = ["URL", "HTTP Method", "Status Code", "WAF Detected", "Vul
                        "Response Body"]
 WAF_COLUMNS = ["URL", "Payload Category", "Payload", "HTTP Method", "Status Code", "WAF Status", "Details",
                "Response Body"]
-IP_SPOOFING_COLUMNS = ["URL", "Spoofed IP", "Spoofed Header", "Status Code", "Vulnerability Status", "Details"]
+IP_SPOOFING_COLUMNS = ["URL", "Spoofed IP", "Spoofed Header", "Baseline Status Code", "Status Code",
+                       "Vulnerability Status", "Details"]
 ERROR_PAGE_COLUMNS = ["URL", "IP", "Status Code", "Vulnerability Status", "Details"]
 EXPOSURE_COLUMNS = ["URL", "IP", "Status Code", "Vulnerability Status", "Details"]
 HEADER_STATS_COLUMNS = ["Header Name", "Count", "Coverage % (Distinct Vulnerable Domains)", "Risk Signal"]
@@ -93,7 +98,8 @@ class Analysis(enum.IntEnum):
 
     @property
     def uses_ip_list(self) -> bool:
-        return self in (Analysis.IP_SPOOFING, Analysis.ERROR_PAGES, Analysis.EXPOSURE)
+        """Reads the shared target-IP list. IP Spoofing reads spoof-ips.txt instead (addresses to impersonate)."""
+        return self in (Analysis.ERROR_PAGES, Analysis.EXPOSURE)
 
 
 _LABELS = {

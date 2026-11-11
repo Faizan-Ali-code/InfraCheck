@@ -25,10 +25,12 @@ Step 1 - Say what to scan
        shop.example.com
    ("https://" is added when it is missing.)  Save and close the file.
 
-Step 2 - Add IP addresses (only for IP Spoofing, Error Page and Exposure analyses)
-   Open  input data\ips list-spoofing-errorpage-exposure.txt  and write one IP address per line.
-   IP Spoofing Analysis and Exposure Check need it; Error Page Analysis uses it when it is filled.
-   For the other analyses you can leave it empty.
+Step 2 - Add IP addresses (only for Error Page, Exposure and IP Spoofing analyses)
+   Error Page and Exposure: open  input data\ips list-spoofing-errorpage-exposure.txt  and write one
+   server IP address per line. Exposure Check needs it; Error Page Analysis uses it when it is filled.
+   IP Spoofing: optionally open  input data\spoof-ips.txt  and list the client addresses your access
+   rules trust (office or VPN IPs, internal ranges). Without it, loopback and private addresses are used.
+   For the other analyses you can leave both files as they are.
 
 Step 3 - Start InfraChecker
    Double-click  run.bat
@@ -40,7 +42,7 @@ Step 4 - Choose the analysis and start it
    a. Analysis: pick one from the list
         Header Analysis        security headers, CSP, cookies, server banners, HTTP to HTTPS, HTTP/2
         HTTP Method Analysis   HTTP methods the server allows (PUT, DELETE, TRACE, ...)
-        IP Spoofing Analysis   access through spoofed client-IP headers
+        IP Spoofing Analysis   whether a spoofed client-IP header unlocks a page that is refused without it
         Error Page Analysis    standard error page in place, or server/technology details shown
         SSL Labs Analysis      TLS grade from Qualys SSL Labs (slow: several minutes per host)
         Exposure Check         hosts and IPs reachable from the internet

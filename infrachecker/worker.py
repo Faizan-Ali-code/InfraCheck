@@ -1,6 +1,7 @@
 """Per-URL task: dispatches one URL to the selected analysis (Java ``ac.run``)."""
 from __future__ import annotations
 
+import functools
 import threading
 from concurrent.futures import ThreadPoolExecutor
 from urllib.parse import urlsplit
@@ -33,8 +34,7 @@ def run_url(analysis: Analysis, url: str, thread_name: str, ip_list: list[str] |
     elif analysis is Analysis.HTTP_METHODS:
         _http_methods(url, paths, proxy_host, proxy_port)
     elif analysis is Analysis.IP_SPOOFING:
-        _fan_out(url, ip_list or [], thread_name, paths.ip_spoofing, ip_spoofing.scan_ip,
-                 "Going to perform IP Spoofing analysis on url ->'{}'")
+        _ip_spoofing(url, ip_list or [], thread_name, paths)
     elif analysis is Analysis.ERROR_PAGES:
         _error_pages(url, ip_list or [], thread_name, paths)
     elif analysis is Analysis.SSL_LABS:
@@ -87,6 +87,24 @@ def _fan_out(url: str, ip_list: list[str], thread_name: str, out_path: str, scan
         _run_children(url, ip_list, thread_name, out_path, scan_ip)
     except Exception:
         writer.append_row(out_path, f"{url}\t--\t--\tHost unreachable")
+        tinfo(f"{url}\tHost unreachable")
+
+
+def _ip_spoofing(url: str, spoof_values: list[str], thread_name: str, paths: OutputPaths) -> None:
+    """One baseline request without client-IP headers, then every impersonated address compared against it."""
+    try:
+        tinfo(f"Going to perform IP Spoofing analysis on url ->'{url}'")
+        baseline = ip_spoofing.take_baseline(url)
+        if baseline.failed:
+            writer.append_row(paths.ip_spoofing, f"{url}\t--\t--\t0\t--\t{ip_spoofing.UNABLE}\t"
+                                                 f"Baseline request failed: {baseline.error}")
+            tinfo(f"{url}\tBaseline request failed: {baseline.error}")
+            return
+        tinfo(f"Baseline status without client-IP headers ->{baseline.status} url ->'{url}'")
+        _run_children(url, spoof_values, thread_name, paths.ip_spoofing,
+                      functools.partial(ip_spoofing.scan_ip, baseline=baseline))
+    except Exception:
+        writer.append_row(paths.ip_spoofing, f"{url}\t--\t--\t--\t--\tHost unreachable\t")
         tinfo(f"{url}\tHost unreachable")
 
 

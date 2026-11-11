@@ -1,5 +1,9 @@
-"""URL helpers of the CSP evaluator (Java ``a.e`` / ``a.f``): scheme-free URLs, hostnames,
-wildcard allowlist matching and a small non-throwing WHATWG-like URL parser.
+"""URL helpers of the CSP evaluator: scheme-free URLs, hostnames, wildcard allowlist matching and a small
+non-throwing WHATWG-like URL parser.
+
+Derived from google/csp-evaluator 1.1.8, utils.ts (https://github.com/google/csp-evaluator), Copyright 2016
+Google Inc., licensed under the Apache License 2.0 (see licenses/csp-evaluator-LICENSE.txt and
+THIRD_PARTY_NOTICES.md). Changes: translated from TypeScript to Python; the URL parser replaces the browser URL API.
 """
 from __future__ import annotations
 

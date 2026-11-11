@@ -1,0 +1,9 @@
+# Client IP addresses that IP Spoofing Analysis pretends to be (one per line; lines starting with # are ignored).
+# Each address is sent in every client-IP header (X-Forwarded-For, X-Real-IP, Forwarded, ...) and the response is
+# compared with a baseline request that has no such header.
+# Put the addresses your access rules trust here: office or VPN egress IPs, internal ranges, monitoring hosts.
+# If this file has no valid address, the defaults below are used.
+127.0.0.1
+10.0.0.1
+172.16.0.1
+192.168.1.1

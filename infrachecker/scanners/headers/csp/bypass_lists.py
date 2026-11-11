@@ -1,5 +1,10 @@
-"""Allowlist-bypass data, extracted verbatim from InfraChecker 4.3.8 a.a.{a,b,c}
-(identical, same order, to google/csp-evaluator 1.1.8 allowlist_bypasses/{angular,flash,jsonp}.ts)."""
+"""Allowlist-bypass data: known script URLs that defeat host allowlists (AngularJS, Flash, JSONP endpoints).
+
+Copied unchanged, in the same order, from google/csp-evaluator 1.1.8, allowlist_bypasses/{angular,flash,jsonp}.ts
+(https://github.com/google/csp-evaluator), Copyright 2016 Google Inc., licensed under the Apache License 2.0
+(see licenses/csp-evaluator-LICENSE.txt and THIRD_PARTY_NOTICES.md).
+Change: converted from TypeScript arrays to Python tuples.
+"""
 from __future__ import annotations
 
 ANGULAR_URLS = (

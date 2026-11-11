@@ -1,4 +1,8 @@
-"""Content-Security-Policy evaluation (Java ``w`` wrapper around package ``a``, a port of google/csp-evaluator).
+"""Content-Security-Policy evaluation: verdict, details and ownership justification for one CSP header.
+
+The parser and checks in this package are derived from google/csp-evaluator 1.1.8
+(https://github.com/google/csp-evaluator), Copyright 2016 Google Inc., licensed under the Apache License 2.0
+(see licenses/csp-evaluator-LICENSE.txt and THIRD_PARTY_NOTICES.md). This wrapper module is not derived from it.
 """
 from __future__ import annotations
 
