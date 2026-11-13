@@ -1,9 +1,24 @@
-# Python environment and caches (run.bat rebuilds .venv)
+# Python environment and caches
 .venv/
 __pycache__/
 *.py[cod]
+.pytest_cache/
+*.egg-info/
+build/
+dist/
 
-# Run output - describes the scanned systems, keep it private
+# Reports describe the scanned systems; keep them private
+infracheck-report-*/
+*.xlsx
+
+# Your own settings and target lists
+infracheck.toml
+urls.txt
+targets.txt
+
+# Local files from version 1 (not part of this version)
+infrachecker/
+input data/
 results/
 logs/
 cache/

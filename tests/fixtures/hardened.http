@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: text/html; charset=utf-8
+Server: nginx
+Strict-Transport-Security: max-age=63072000; includeSubDomains; preload
+X-Content-Type-Options: nosniff
+Content-Security-Policy: script-src 'nonce-r4nd0m' 'strict-dynamic' https: 'unsafe-inline'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'; report-to csp
+Referrer-Policy: no-referrer, strict-origin-when-cross-origin
+Permissions-Policy: camera=(), geolocation=()
+Cache-Control: no-store
+Expires: 0
+Set-Cookie: __Host-sid=4c1f9a7e2b8d4e6f9a0b1c2d; Path=/; Secure; HttpOnly; SameSite=Lax
+
+<html><head><title>Account</title></head><body>Hello</body></html>

@@ -1,96 +1,138 @@
-# InfraChecker
+# InfraCheck
 
-Desktop tool that checks web-facing infrastructure for common security weaknesses and writes the findings to Excel.
-Python rebuild of InfraChecker 4.3.8.
+InfraCheck checks web-facing hosts for common security weaknesses:
 
-**Step-by-step instructions: [`HOW-TO-RUN.txt`](HOW-TO-RUN.txt).**
+- TLS certificates and protocol versions, and HTTP to HTTPS redirection;
+- security headers, Content-Security-Policy and cookie attributes;
+- CORS trust, accepted HTTP methods and error pages;
+- disclosed and end-of-life software versions;
+- client-IP spoofing of access controls;
+- optionally, exposed service ports.
 
-## Requirements
+Every rule names the standard it comes from, and every active test is harmless by default.
 
-- Windows with **Python 3.12** installed and on `PATH`.
-- Internet access on the first run (packages are installed into a local `.venv` folder: about 100 MB download,
-  270 MB on disk).
-- A short folder path: at most about **80 characters** (for example `C:\InfraChecker\`). The Qt package has very
-  long file names and its install fails on longer paths unless Windows long path support is enabled.
+```
+C:\work> python -m infracheck scan http://127.0.0.1:62267/ http://127.0.0.1:62267/admin -o ic-demo-report
+          --formats csv,json --checks headers,csp,cookies,cors,errors,versions,methods,spoofing
+Scanning 2 target(s) with: headers, csp, cookies, cors, errors, versions, methods, spoofing. Only scan systems you are authorised to test.
+[1/2] http://127.0.0.1:62267/: 12 finding(s)
+[2/2] http://127.0.0.1:62267/admin: 10 finding(s)
 
-## Run
+InfraCheck 2.0.0: 2 target(s), 2 reachable, 1.3 s
+Findings: 22 (1 high, 9 medium, 7 low, 5 info)
+  http://127.0.0.1:62267/: 5 medium, 4 low, 3 info
+  http://127.0.0.1:62267/admin: 1 high, 4 medium, 3 low, 2 info
+Report: C:\work\ic-demo-report\findings.csv
+Report: C:\work\ic-demo-report\findings.json
+```
 
-- GUI: double-click **`run.bat`**. The first run creates `.venv` and installs the packages; later runs start
-  immediately.
-- Terminal mode: `run.bat --cli [1-7] [--no-proxy | --proxy host:port]`; `run.bat --cli` shows a menu,
-  `run.bat --cli 0` prints help.
+That run was against a local demo server with planted weaknesses. The high finding is the `/admin` page:
+it answers 403, but 200 when the request carries `X-Forwarded-For: 10.0.0.1`.
 
-## Analyses
+## How it decides
 
-| # | Analysis | Checks | Inputs |
-|---|---|---|---|
-| 1 | Header Analysis | security headers, CSP, cookies, banners/versions, HTTP→HTTPS, HTTP/2 | `urls.txt` (+ optional files below) |
-| 3 | HTTP Method Analysis | HTTP methods the server allows | `urls.txt` |
-| 4 | IP Spoofing Analysis | whether a spoofed client-IP header unlocks a page that is refused without it ([method](#how-ip-spoofing-analysis-decides)) | `urls.txt`, `spoof-ips.txt` (optional) |
-| 5 | Error Page Analysis | standard error page in place, no server/technology disclosure | `urls.txt`, IP list (optional) |
-| 6 | SSL Labs Analysis | TLS grade and issues from Qualys SSL Labs | `urls.txt` |
-| 7 | Exposure Check | hosts/IPs reachable from the internet — run from outside your internal network | `urls.txt`, IP list |
+- **Effects, not assumptions.**
+  - **Spoofing:** a client-IP header is only reported when a page refused without it is served with it.
+  - **TRACE:** reported only when a marker header comes back in the response.
+  - **PUT and DELETE:** confirmed only by uploading a probe file and reading it back, which is opt-in.
+  - **Control request:** a made-up HTTP method is sent first, so a server that answers *everything* with
+    200 does not produce false "PUT enabled" findings.
+- **Parsed, not substring-matched.**
+  - Cookies are split into name, value and attributes, so a cookie *named* `secure_id` is not a Secure
+    cookie.
+  - `Expires` is parsed as an HTTP date, CSP as directives, and `Referrer-Policy` fallback lists as the
+    browser reads them.
+  - Error pages are matched against server templates and stack-trace patterns, not single words.
+- **Severity follows impact.** A missing control that leaves a real attack open (HSTS, frame protection,
+  CSP) is rated higher than hardening headers. `Permissions-Policy` and an explicit `Referrer-Policy` are
+  *info*, and HSTS `preload` is not required.
+- **Versions: facts, not guesses.**
+  - Disclosed versions are compared with vendor support schedules from endoflife.date.
+  - The report keeps three things apart: "version disclosed", "release line end-of-life" and "newer patch
+    exists" (info only, because distributions backport fixes).
+  - Nothing is declared vulnerable to a CVE from a banner.
+- **Certificates are verified.** An invalid certificate is a finding with the reason (expired,
+  self-signed, wrong host). The rest of that target is then still checked, unverified.
 
-Option 2 (WAF Analysis) is not available in this build.
+All rules, their severities and sources are listed in [docs/CHECKS.md](docs/CHECKS.md).
 
-## Input files (`input data\`)
+## Checks
 
-The tool ships with empty lists and templates; fill in your own data.
-
-| File | Purpose |
-|---|---|
-| `urls.txt` | one URL or host per line (`https://` is added when missing) |
-| `ips list-spoofing-errorpage-exposure.txt` | server IP addresses, one per line (Error Page and Exposure analyses) |
-| `spoof-ips.txt` | optional: client addresses IP Spoofing Analysis pretends to be (default: loopback and private addresses) |
-| `IP-Ownership.xls`, `CSP-Ownership.xls` | optional: column A IP address, column B owning team (row 1 is the header) |
-| `ignored-domains.txt` | optional: hosts always reported as Not Vulnerable in Header Analysis |
-| `ignored-banner-grabbing.txt` | optional: banner values to ignore (matched as part of the value) |
-| `banner-version-baselines.txt` | `hint\|technology\|minPatchedVersion`: older versions are reported |
-| `openai-config.txt` | optional: model and cache settings for banner version lookups |
-| `organization-config.txt` | optional: default owner, ACS/3-D Secure host markers, log summary (see the file) |
-| `update-config.txt` | where "Check for Updates" reads the latest version (empty = check disabled) |
-
-**Secrets are never stored in files.** Set them as environment variables:
-
-- `OPENAI_API_KEY`: OpenAI key for banner version lookups (optional; without it only the baseline file is used).
-- `INFRACHECKER_UPDATE_TOKEN`: only if the version file needs a token.
-
-## How IP Spoofing Analysis decides
-
-Each URL is first requested **without** any client-IP header (the baseline). It is then requested once per header
-(`X-Forwarded-For`, `X-Real-IP`, `X-Client-IP`, `Forwarded`, ...) and per address in `spoof-ips.txt`. Redirects are
-not followed, so a redirect to a login page counts as refused.
-
-| Baseline | Spoofed request | Result |
+| Check | What it does | Requests |
 |---|---|---|
-| page served | any | Not Applicable (already public) |
-| refused, redirected or error page | page served | **Vulnerable to IP Spoofing** |
-| refused, redirected or error page | different status, page still not served | Review Manually |
-| refused, redirected or error page | same status | Not Vulnerable |
-| request failed | | Unable to Test |
+| `transport` | Certificate validity and expiry, TLS 1.0/1.1 accepted, TLS 1.3 offered, HTTP to HTTPS redirect, HTTP/2 | TLS handshakes, one HTTP request |
+| `headers` | HSTS, nosniff, frame protection, Referrer-Policy, Permissions-Policy, X-XSS-Protection, caching of responses that set cookies | none extra |
+| `csp` | Content-Security-Policy on HTML pages: unsafe-inline, unsafe-eval, wildcards, allowlists, object-src, base-uri, report-only | none extra |
+| `cookies` | Secure, HttpOnly (session cookies), SameSite, `__Host-` / `__Secure-` prefix rules | none extra |
+| `cors` | Arbitrary origin, `null` origin and prefix-matching origins trusted, with or without credentials | 3 GET |
+| `errors` | Stack traces, debug pages, file paths and default server templates on a 404 and a 400 page; optional expected-page marker | 2 GET |
+| `versions` | Versions in headers, generator tags and error pages; end-of-life and patch level from endoflife.date | endoflife.date (skip with `--offline`) |
+| `methods` | Control verb, OPTIONS, TRACE (echo confirmed), PROPFIND; PUT/DELETE confirmed with `--allow-write-probes` | 4 (+4) |
+| `spoofing` | 9 client-IP headers × the spoof address list, compared with a baseline | up to 37 |
+| `exposure` | Opt-in: TCP connect to database, admin and remote-access ports | 1 connect per port |
 
-The tool can only test the URLs you give it, so list the pages that are meant to be restricted (admin consoles,
-internal APIs, monitoring endpoints).
+## Quick start
 
-## Results
+Needs Python 3.11 or newer. The scanner uses the standard library only; `openpyxl` adds Excel reports.
 
-- `results\<Analysis>-Status-<date-time>.xlsx`: one workbook per run (sheet `Result ver 4.3.8`).
-  Header Analysis also adds `Header Stats` and `Teamwise Stats` sheets.
-- `results\html\...`: saved responses used as evidence (IP Spoofing, Error Pages, Exposure).
-- `results\SSL-Lab-Reports\`: SSL Labs report pages.
-- `logs\`: one log file per start of the app.
+```bat
+git clone https://github.com/Faizan-Ali-code/InfraCheck.git
+cd InfraCheck
+pip install -r requirements.txt
+python -m infracheck scan www.example.com
+python -m infracheck scan -f urls.txt --out reports\today
+```
 
-Results describe the scanned systems: keep `results\` and `logs\` private.
+On Windows, `run.bat scan -f urls.txt` does the same and creates a virtual environment on the first run.
+Targets are host names or URLs (`https://` is assumed). Test restricted pages for spoofing by listing
+their URLs, for example `https://intranet.example.com/admin`.
 
-## Third-party code
+| Option | Meaning |
+|---|---|
+| `-f FILE` | Targets, one per line (`#` comments allowed) |
+| `--checks a,b` | Run only these checks; `all` adds `exposure` |
+| `--allow-write-probes` | Confirm PUT/DELETE by uploading and deleting one uniquely named text file (only where you may write) |
+| `--spoof-ips FILE` | Addresses the spoofing check claims to be: your trusted office, VPN or internal ranges |
+| `--expected-error-marker TEXT` | A sentence from your standard error page; pages without it are reported |
+| `--ca-file PEM` | Trust an internal CA |
+| `--proxy host:port` | Use an HTTP proxy |
+| `--offline` | No end-of-life lookups |
+| `--ports 22,3306` | Ports for the `exposure` check |
+| `--fail-on SEVERITY` | Exit code 1 when a finding of this severity or higher exists (default `low`; `never` to always exit 0). Exit code 2 means nothing was reachable or the options were invalid. |
+| `--config FILE` | Settings file; [infracheck.example.toml](infracheck.example.toml) lists every setting with its default |
 
-The Content-Security-Policy evaluation is derived from Google's
-[csp-evaluator](https://github.com/google/csp-evaluator) 1.1.8 (Apache License 2.0). See
-[`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) for the files involved and the changes made.
+## Reports
 
-## Troubleshooting
+`findings.csv`, `findings.json` and `findings.xlsx` (Summary, Findings and Targets sheets).
 
-- **"Setup failed"** on the first run: install Python 3.12 and tick "Add python.exe to PATH", check internet access,
-  and move the folder to a short path such as `C:\InfraChecker\`. Then run again; setup continues where it stopped.
-- **A result file is open in Excel**: close it; the tool needs to write to it while the scan runs.
-- To start from a clean environment, delete the `.venv` folder and run `run.bat` again.
+- **Each finding** has:
+  - target, check, rule and severity;
+  - a detail line saying why;
+  - the evidence (header line, policy, status codes);
+  - the source standard;
+  - for active tests, an evidence file with the full request and response under `evidence/`.
+- **The Targets sheet** shows reachability, final URL, TLS version, certificate status, HTTP/2 and the
+  state of every check. That includes "not applicable" and "partial", for example when a proxy
+  prevents the TLS version probes.
+- **Formula injection:** response text from servers is written as text, never as spreadsheet formulas.
+
+## Validation
+
+[docs/VALIDATION.md](docs/VALIDATION.md) describes how the checks were validated:
+
+- local HTTP and HTTPS servers with known behaviour, run by the test suite, with generated certificates
+  (valid, expired, self-signed, wrong host) and a TLS 1.1-only server;
+- golden-file tests of whole responses;
+- public test targets you can use yourself.
+
+What the checks do not cover is listed there too.
+
+## Development
+
+```
+pip install -r requirements-dev.txt
+python -m pytest
+```
+
+> Only scan systems you are authorised to test. Reports describe weaknesses of the scanned systems:
+> keep them private.

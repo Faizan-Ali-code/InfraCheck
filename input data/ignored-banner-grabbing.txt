@@ -1,2 +1,0 @@
-#The following banner-grabbing values will be ignored if they are contained within the actual value.
-#One value per line, for example: cdn-node-

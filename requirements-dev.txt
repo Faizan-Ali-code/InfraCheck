@@ -1,0 +1,3 @@
+-r requirements.txt
+pytest==9.2.0
+cryptography==50.0.2   # tests only: makes the test certificates (CA, valid, expired, wrong host, self-signed)

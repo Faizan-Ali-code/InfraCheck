@@ -1,0 +1,17 @@
+{
+  "_comment": "Golden results: rule ids each fixture page must produce (headers, csp, cookies and versions checks, offline). Order does not matter; repeats count.",
+  "insecure.http": [
+    "hsts-missing", "nosniff-missing", "clickjacking", "referrer-unsafe", "permissions-policy-missing",
+    "xss-protection-deprecated", "cacheable-with-cookies",
+    "csp-unsafe-inline", "csp-wildcard-script", "csp-object-src",
+    "cookie-no-secure", "cookie-no-secure", "cookie-no-httponly", "cookie-no-samesite", "cookie-no-samesite",
+    "version-disclosed", "version-disclosed", "version-disclosed"
+  ],
+  "hardened.http": [],
+  "api.http": ["hsts-short", "hsts-no-subdomains", "nosniff-missing"],
+  "report-only.http": [
+    "xfo-allow-from", "clickjacking", "cacheable-with-cookies",
+    "csp-report-only", "csp-host-allowlist", "csp-insecure-source", "csp-object-src", "csp-unknown-directive",
+    "cookie-no-secure", "cookie-no-secure", "cookie-samesite-none-insecure", "cookie-prefix-violation"
+  ]
+}

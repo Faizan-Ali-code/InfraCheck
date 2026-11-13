@@ -1,0 +1,13 @@
+HTTP/1.1 200 OK
+Content-Type: text/html
+Strict-Transport-Security: max-age=31536000; includeSubDomains
+X-Content-Type-Options: nosniff
+X-Frame-Options: ALLOW-FROM https://partner.example
+Content-Security-Policy-Report-Only: default-src 'self' https://cdn.example.com http://legacy.example.com; script-src-elm 'self'
+Referrer-Policy: strict-origin-when-cross-origin
+Permissions-Policy: camera=()
+Set-Cookie: tracking=abc; SameSite=None; Path=/; Max-Age=3600
+Set-Cookie: __Secure-pref=dark; Path=/; SameSite=Strict
+Cache-Control: max-age=600
+
+<html><body>news</body></html>
