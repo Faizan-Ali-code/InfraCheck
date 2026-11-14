@@ -127,12 +127,33 @@ their URLs, for example `https://intranet.example.com/admin`.
 
 What the checks do not cover is listed there too.
 
+## What it sends where
+
+- **Targets** receive only the requests listed under [Checks](#checks):
+  - the write probe (PUT/DELETE) only with `--allow-write-probes`;
+  - the port check only with `--checks exposure`.
+- **endoflife.date** receives product names only (for example `nginx`), never target names or addresses.
+  `--offline` stops these lookups.
+- **Reports and evidence files** stay in the local report folder. They describe weaknesses of the scanned
+  systems, so treat them as confidential.
+
 ## Development
 
 ```
 pip install -r requirements-dev.txt
 python -m pytest
 ```
+
+## Authorship
+
+- **Author:** Faizan Ali. Version 2.0 (November 2026) replaces version 1.x completely.
+- **Third-party:** none at runtime; the scanner uses the Python standard library. Optional: openpyxl (MIT) for
+  Excel reports. Tests use pytest and cryptography (to make test certificates). The rules are based on the published
+  standards cited in [docs/CHECKS.md](docs/CHECKS.md).
+
+## License
+
+[MIT](LICENSE) © 2026 Faizan Ali.
 
 > Only scan systems you are authorised to test. Reports describe weaknesses of the scanned systems:
 > keep them private.
