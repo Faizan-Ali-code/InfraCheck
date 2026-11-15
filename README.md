@@ -136,11 +136,5 @@ InfraCheck is a configuration check, not a full assessment. It does not cover:
 - **Reports and evidence files** stay in the local report folder. They describe weaknesses of the scanned
   systems, so treat them as confidential.
 
-## Authorship
-
-- **Author:** Faizan Ali. Version 2.0 (November 2026) replaces version 1.x completely.
-- **Third-party:** none at runtime; the scanner uses the Python standard library. Optional: openpyxl (MIT) for
-  Excel reports. The rules are based on published standards (OWASP, ASVS, RFCs).
-
 > Only scan systems you are authorised to test. Reports describe weaknesses of the scanned systems:
 > keep them private.
