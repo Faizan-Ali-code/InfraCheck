@@ -54,7 +54,8 @@ it answers 403, but 200 when the request carries `X-Forwarded-For: 10.0.0.1`.
 - **Certificates are verified.** An invalid certificate is a finding with the reason (expired,
   self-signed, wrong host). The rest of that target is then still checked, unverified.
 
-All rules, their severities and sources are listed in [docs/CHECKS.md](docs/CHECKS.md).
+`python -m infracheck checks` lists every rule with its severity and title. Each finding in a report also
+names the standard it is based on (OWASP, ASVS, RFC).
 
 ## Checks
 
@@ -116,16 +117,14 @@ their URLs, for example `https://intranet.example.com/admin`.
   prevents the TLS version probes.
 - **Formula injection:** response text from servers is written as text, never as spreadsheet formulas.
 
-## Validation
+## Limits
 
-[docs/VALIDATION.md](docs/VALIDATION.md) describes how the checks were validated:
+InfraCheck is a configuration check, not a full assessment. It does not cover:
 
-- local HTTP and HTTPS servers with known behaviour, run by the test suite, with generated certificates
-  (valid, expired, self-signed, wrong host) and a TLS 1.1-only server;
-- golden-file tests of whole responses;
-- public test targets you can use yourself.
-
-What the checks do not cover is listed there too.
+- TLS depth: cipher suites, key exchange and TLS vulnerabilities (use testssl.sh or sslyze);
+- CVEs inferred from version banners;
+- CSP bypasses on specific allow-listed hosts;
+- pages behind a login.
 
 ## What it sends where
 
@@ -137,23 +136,11 @@ What the checks do not cover is listed there too.
 - **Reports and evidence files** stay in the local report folder. They describe weaknesses of the scanned
   systems, so treat them as confidential.
 
-## Development
-
-```
-pip install -r requirements-dev.txt
-python -m pytest
-```
-
 ## Authorship
 
 - **Author:** Faizan Ali. Version 2.0 (November 2026) replaces version 1.x completely.
 - **Third-party:** none at runtime; the scanner uses the Python standard library. Optional: openpyxl (MIT) for
-  Excel reports. Tests use pytest and cryptography (to make test certificates). The rules are based on the published
-  standards cited in [docs/CHECKS.md](docs/CHECKS.md).
-
-## License
-
-[MIT](LICENSE) © 2026 Faizan Ali.
+  Excel reports. The rules are based on published standards (OWASP, ASVS, RFCs).
 
 > Only scan systems you are authorised to test. Reports describe weaknesses of the scanned systems:
 > keep them private.
